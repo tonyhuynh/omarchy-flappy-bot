@@ -5,7 +5,7 @@ Flappy Bot is a theme-aware, Flappy Bird-style game for
 increasingly challenging obstacle course with simple tap-to-fly controls. Play
 in a centered window by default or switch to fullscreen at any time.
 
-## Themes
+## Theme-Aware Examples
 
 | Solitude | Catppuccin Latte | Tokyo Night |
 |:---:|:---:|:---:|
