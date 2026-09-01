@@ -96,6 +96,7 @@ Item {
   readonly property real maxFallV: hgt * 0.72
   readonly property real flapResponse: 0.88
   readonly property real rotationResponse: 9.0
+  readonly property real boostDuration: 0.16
   // Difficulty advances continuously with score and announces a new level
   // every eight pipes. Flight physics stay fixed so the controls remain
   // predictable; only the obstacle course becomes more demanding.
@@ -146,6 +147,10 @@ Item {
   property var pipes: []
   property real groundScroll: 0
   property real wingPhase: 0
+  property real lastBoostTime: -10
+  readonly property real boostPulse: root.gameState === "playing"
+    ? Math.max(0, 1 - (root.t - root.lastBoostTime) / root.boostDuration)
+    : 0
 
   // ---- Persistence ----------------------------------------------------------
   // High score lives under the Omarchy state dir, next to theme state.
@@ -177,6 +182,7 @@ Item {
     root.botV = 0
     root.botRot = 0
     root.wingPhase = 0
+    root.lastBoostTime = -10
     root.deathTime = 0
     root.levelUpTime = -10
     root.groundScroll = 0
@@ -189,6 +195,7 @@ Item {
     root.botY = root.hgt * 0.45
     root.botV = root.flapV
     root.botRot = 0
+    root.lastBoostTime = root.t
     root.levelUpTime = -10
   }
 
@@ -197,6 +204,7 @@ Item {
     // momentum. A late recovery still responds strongly, while closely spaced
     // taps no longer produce identical saw-tooth jumps.
     root.botV += (root.flapV - root.botV) * root.flapResponse
+    root.lastBoostTime = root.t
   }
 
   function integrateBot(dt) {
@@ -556,6 +564,7 @@ Item {
       y: root.botY - (baseH * s) / 2
       rotation: root.botRot
       wingPhase: root.wingPhase
+      boostPulse: root.boostPulse
       bodyColor: root.botBody
       highlightColor: root.botHighlight
       panelColor: root.botPanel
