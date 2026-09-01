@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "id": "tonyhuynh.flappy-bot",
+  "name": "Flappy Bot",
+  "version": "1.0.0",
+  "author": "Tony Huynh",
+  "license": "MIT",
+  "description": "A theme-aware Flappy Bird-style game for Omarchy, with tap-to-fly controls and a small robot.",
+  "kinds": [
+    "overlay",
+    "bar-widget"
+  ],
+  "keepLoaded": true,
+  "entryPoints": {
+    "overlay": "Overlay.qml",
+    "barWidget": "BarWidget.qml"
+  },
+  "barWidget": {
+    "displayName": "Flappy Bot",
+    "description": "Guide a robot through the pipes with tap-to-fly controls in your current theme.",
+    "category": "Games",
+    "allowMultiple": false,
+    "defaultSection": "right"
+  }
+}
