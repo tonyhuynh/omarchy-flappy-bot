@@ -12,6 +12,10 @@ Item {
   property color capColor: "#2e3440"
   // Cap lip thickness as a fraction of the pipe width.
   readonly property real capH: Math.min(width * 0.32, 26)
+  readonly property real capOverhang: width * 0.08
+  // Matching the radius to the overhang keeps the square stem fully hidden
+  // behind the rounded, gap-facing edge of each cap.
+  readonly property real capRadius: Math.min(capH * 0.5, capOverhang)
 
   readonly property real topH: gapCenterY - gapHeight / 2
   readonly property real bottomTop: gapCenterY + gapHeight / 2
@@ -37,11 +41,11 @@ Item {
 
   // Top pipe cap (the wide lip at the gap edge).
   Rectangle {
-    x: -width * 0.08
+    x: -root.capOverhang
     y: root.topH - root.capH
-    width: root.width * 1.16
+    width: root.width + root.capOverhang * 2
     height: root.capH
-    radius: Math.min(root.capH * 0.5, root.width * 0.18)
+    radius: root.capRadius
     color: root.capColor
     visible: root.topH > 0
   }
@@ -66,11 +70,11 @@ Item {
 
   // Bottom pipe cap.
   Rectangle {
-    x: -width * 0.08
+    x: -root.capOverhang
     y: root.bottomTop
-    width: root.width * 1.16
+    width: root.width + root.capOverhang * 2
     height: root.capH
-    radius: Math.min(root.capH * 0.5, root.width * 0.18)
+    radius: root.capRadius
     color: root.capColor
     visible: root.bottomTop < root.height
   }
