@@ -71,7 +71,11 @@ Close it:
 omarchy-shell shell hide tonyhuynh.flappy-bot
 ```
 
-The high score persists at `~/.local/state/omarchy/flappy-bot-best`.
+The high score survives updates and reinstallations. Reset it with:
+
+```sh
+omarchy bar set tonyhuynh.flappy-bot bestScore 0 --json
+```
 
 ## Remove
 

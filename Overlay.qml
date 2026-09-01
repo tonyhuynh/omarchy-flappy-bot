@@ -1,7 +1,6 @@
 import QtQuick
 import Quickshell
 import Quickshell.Wayland
-import Quickshell.Io
 import qs.Commons
 
 // Overlay entry point for centered or fullscreen Flappy Bot. The shell drives
@@ -13,6 +12,8 @@ Item {
   // ---- Lifecycle (driven by the shell) -------------------------------------
   property var shell: null
   property var manifest: null
+  readonly property string moduleName: (root.manifest && root.manifest.id)
+    || "tonyhuynh.flappy-bot"
   property bool opened: false
   property bool fullscreenMode: false
   property bool resizingMode: false
@@ -23,7 +24,7 @@ Item {
     root.resizingMode = false
     root.modeSnapshot = null
     root.opened = true
-    root.loadBest(root.bestFile ? root.bestFile.text() : "")
+    root.best = root.readBest()
     root.restart()
     Qt.callLater(function() { keyCatcher.forceActiveFocus() })
   }
@@ -38,7 +39,7 @@ Item {
   function dismiss() {
     root.close()
     if (root.shell && typeof root.shell.hide === "function")
-      root.shell.hide((root.manifest && root.manifest.id) || "tonyhuynh.flappy-bot")
+      root.shell.hide(root.moduleName)
   }
 
   function toggle() { root.opened ? root.dismiss() : root.open("") }
@@ -153,24 +154,60 @@ Item {
     : 0
 
   // ---- Persistence ----------------------------------------------------------
-  // High score lives under the Omarchy state dir, next to theme state.
-  property FileView bestFile: FileView {
-    path: Color.home + "/.local/state/omarchy/flappy-bot-best"
-    watchChanges: false
-    atomicWrites: true
-    printErrors: false
-    onLoaded: root.loadBest(text())
-    onLoadFailed: root.loadBest("")
+  // Keep the record in this plugin's shell.json entry through the shell's
+  // settings API. This avoids opening a predictable path from the long-lived
+  // shell process and lets Omarchy own config validation and publication.
+  readonly property int maxStoredBest: 999999
+
+  function validatedBest(value) {
+    if (typeof value !== "number" || !isFinite(value)) return 0
+    if (Math.floor(value) !== value) return 0
+    if (value < 0 || value > root.maxStoredBest) return 0
+    return value
   }
 
-  function loadBest(raw) {
-    var txt = String(raw === undefined || raw === null ? "" : raw).trim()
-    var n = parseInt(txt, 10)
-    root.best = isNaN(n) ? 0 : n
+  // updateEntryInline searches the bar layout first and the top-level plugin
+  // list second. Read those same locations so the record is never written to
+  // one entry and read from another.
+  function entrySettings() {
+    var config = root.shell ? root.shell.shellConfig : null
+    if (!config) return null
+
+    var sections = ["left", "center", "right"]
+    var layout = config.bar && config.bar.layout ? config.bar.layout : null
+    for (var s = 0; layout && s < sections.length; s++) {
+      var entries = layout[sections[s]] || []
+      for (var i = 0; i < entries.length; i++) {
+        var entry = entries[i]
+        if (entry && String(entry.id) === root.moduleName) return entry
+      }
+    }
+
+    var plugins = Array.isArray(config.plugins) ? config.plugins : []
+    for (var j = 0; j < plugins.length; j++) {
+      var plugin = plugins[j]
+      if (plugin && String(plugin.id) === root.moduleName) return plugin
+    }
+    return null
   }
 
-  function saveBest() {
-    root.bestFile.setText(String(root.best))
+  function readBest() {
+    var entry = root.entrySettings()
+    return entry ? root.validatedBest(entry.bestScore) : 0
+  }
+
+  function writeBest(value) {
+    var safeValue = root.validatedBest(value)
+    if (safeValue !== value) return false
+
+    var entry = root.entrySettings()
+    if (!entry || !root.shell
+        || typeof root.shell.updateEntryInline !== "function") return false
+
+    var next = { id: root.moduleName }
+    for (var key in entry) if (key !== "id") next[key] = entry[key]
+    next.bestScore = safeValue
+    return root.shell.updateEntryInline(root.moduleName, next)
   }
 
   // ---- Game logic -----------------------------------------------------------
@@ -240,7 +277,7 @@ Item {
     root.deathTime = root.t
     if (root.score > root.best) {
       root.best = root.score
-      root.saveBest()
+      root.writeBest(root.best)
     }
   }
 

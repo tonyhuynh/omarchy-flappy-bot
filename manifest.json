@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "tonyhuynh.flappy-bot",
   "name": "Flappy Bot",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": "Tony Huynh",
   "license": "MIT",
   "description": "A theme-aware Flappy Bird-style game for Omarchy, with tap-to-fly controls and a small robot.",
