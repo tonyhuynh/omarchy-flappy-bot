@@ -96,25 +96,41 @@ Item {
   readonly property real maxFallV: hgt * 0.72
   readonly property real flapResponse: 0.88
   readonly property real rotationResponse: 9.0
-  // Difficulty advances continuously with score and announces broader levels
+  // Difficulty advances continuously with score and announces a new level
   // every eight pipes. Flight physics stay fixed so the controls remain
   // predictable; only the obstacle course becomes more demanding.
   readonly property int scorePerLevel: 8
-  readonly property int maxDifficultyLevel: 4
+  readonly property int maxDifficultyLevel: 10
   readonly property int difficultyLevel: root.levelForScore(root.score)
-  readonly property real difficultyProgress: Math.min(1,
-    root.score / ((root.maxDifficultyLevel - 1) * root.scorePerLevel))
-  readonly property string difficultyName: ["Cruise", "Boost", "Turbo", "Overdrive"][root.difficultyLevel - 1]
+  readonly property var difficultyNames: [
+    "Cruise", "Boost", "Turbo", "Overdrive", "Vector",
+    "Pulse", "Redline", "Warp", "Hyperdrive", "Singularity"
+  ]
+  readonly property string difficultyName: root.difficultyNames[root.difficultyLevel - 1]
   readonly property string difficultyLabel: "Level " + String(root.difficultyLevel)
     + " - " + root.difficultyName
-  // Cruise starts with a 15% pace assist. It fades continuously as the score
-  // rises, preserving the existing Overdrive speed at the top of the curve.
-  readonly property real startingPace: 0.85 + root.difficultyProgress * 0.15
+  // Preserve the original Cruise-to-Overdrive curve through score 24, then
+  // extend it across six tougher endgame levels that peak at score 72.
+  readonly property real overdriveScore: 3 * root.scorePerLevel
+  readonly property real maximumDifficultyScore:
+    (root.maxDifficultyLevel - 1) * root.scorePerLevel
+  readonly property real baseDifficultyProgress: Math.min(1,
+    root.score / root.overdriveScore)
+  readonly property real endgameDifficultyProgress: Math.max(0, Math.min(1,
+    (root.score - root.overdriveScore)
+      / (root.maximumDifficultyScore - root.overdriveScore)))
+  // Cruise starts with a 15% pace assist, which still fades by Overdrive.
+  readonly property real startingPace: 0.85 + root.baseDifficultyProgress * 0.15
   readonly property real pipeSpeed: hgt
-    * (0.36 + root.difficultyProgress * 0.11) * root.startingPace
+    * (0.36 + root.baseDifficultyProgress * 0.11
+      + root.endgameDifficultyProgress * 0.10) * root.startingPace
   readonly property real pipeW: Math.max(46, hgt * 0.11)
-  readonly property real pipeGap: hgt * (0.30 - root.difficultyProgress * 0.045)
-  readonly property real pipeSpacing: hgt * (0.46 - root.difficultyProgress * 0.015)
+  readonly property real pipeGap: hgt * (0.30
+    - root.baseDifficultyProgress * 0.045
+    - root.endgameDifficultyProgress * 0.035)
+  readonly property real pipeSpacing: hgt * (0.46
+    - root.baseDifficultyProgress * 0.015
+    - root.endgameDifficultyProgress * 0.025)
   readonly property real pipePool: 7
 
   // ---- Game state -----------------------------------------------------------

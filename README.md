@@ -40,9 +40,10 @@ omarchy plugin update tonyhuynh.flappy-bot
 ## Progression
 
 Each cleared pipe increases the challenge slightly as the course speeds up
-and its gaps and spacing tighten. After a gentler Cruise start, new levels
-arrive at scores 8, 16, and 24: Boost, Turbo, and Overdrive. Flight controls
-remain consistent throughout a run.
+and its gaps and spacing tighten. Levels advance every eight pipes through
+Cruise, Boost, Turbo, Overdrive, Vector, Pulse, Redline, Warp, Hyperdrive, and
+Singularity. Flight controls remain consistent while the late-game course
+keeps getting harder through Level 10.
 
 ## Shell commands
 
