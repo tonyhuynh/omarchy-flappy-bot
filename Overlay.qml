@@ -585,9 +585,8 @@ Item {
       anchors.top: parent.top
       anchors.topMargin: Style.spacing.md
       anchors.horizontalCenter: parent.horizontalCenter
-      width: Math.min(root.wdt - Style.spacing.lg * 2,
-                      Math.max(420, scoreLine.implicitWidth + Style.spacing.xl * 2))
-      height: scoreLine.implicitHeight + Style.spacing.sm * 2
+      width: Math.min(root.wdt - Style.spacing.lg * 2, 480)
+      height: scoreContent.implicitHeight + Style.spacing.sm * 2
       radius: height / 2
       color: Qt.rgba(root.skyBottom.r, root.skyBottom.g, root.skyBottom.b, 1)
       border.color: levelChanged ? root.botBody : root.panelBorder
@@ -596,23 +595,88 @@ Item {
       visible: root.gameState === "playing"
       z: 55
 
-      Text {
-        id: scoreLine
+      Row {
+        id: scoreContent
         anchors.centerIn: parent
         width: parent.width - Style.spacing.lg * 2
-        height: parent.height - Style.spacing.xxs * 2
-        text: "SCORE " + String(root.score)
-          + "  ·  HIGH SCORE " + String(root.best)
-          + "  ·  " + root.difficultyLabel
-        color: root.textCol
-        font.pixelSize: Style.fontPx(1.05)
-        fontSizeMode: Text.Fit
-        minimumPixelSize: 8
-        font.bold: true
-        font.family: Style.fontFamily
-        horizontalAlignment: Text.AlignHCenter
-        verticalAlignment: Text.AlignVCenter
-        wrapMode: Text.NoWrap
+        spacing: Style.spacing.sm
+        readonly property real usableWidth: width - spacing * 2
+
+        Column {
+          width: scoreContent.usableWidth * 0.18
+          spacing: 0
+
+          Text {
+            width: parent.width
+            text: "SCORE"
+            color: root.textCol
+            opacity: 0.58
+            font.pixelSize: Style.fontPx(0.72)
+            font.family: Style.fontFamily
+            horizontalAlignment: Text.AlignHCenter
+          }
+
+          Text {
+            width: parent.width
+            text: String(root.score)
+            color: root.textCol
+            font.pixelSize: Style.fontPx(1.2)
+            font.bold: true
+            font.family: Style.fontFamily
+            horizontalAlignment: Text.AlignHCenter
+          }
+        }
+
+        Column {
+          width: scoreContent.usableWidth * 0.25
+          spacing: 0
+
+          Text {
+            width: parent.width
+            text: "HIGH SCORE"
+            color: root.textCol
+            opacity: 0.58
+            font.pixelSize: Style.fontPx(0.72)
+            font.family: Style.fontFamily
+            horizontalAlignment: Text.AlignHCenter
+          }
+
+          Text {
+            width: parent.width
+            text: String(root.best)
+            color: root.textCol
+            font.pixelSize: Style.fontPx(1.2)
+            font.bold: true
+            font.family: Style.fontFamily
+            horizontalAlignment: Text.AlignHCenter
+          }
+        }
+
+        Column {
+          width: scoreContent.usableWidth * 0.57
+          spacing: 0
+
+          Text {
+            width: parent.width
+            text: "DIFFICULTY"
+            color: root.textCol
+            opacity: 0.58
+            font.pixelSize: Style.fontPx(0.72)
+            font.family: Style.fontFamily
+            horizontalAlignment: Text.AlignHCenter
+          }
+
+          Text {
+            width: parent.width
+            text: root.difficultyLabel
+            color: scoreHud.levelChanged ? root.botBody : root.textCol
+            font.pixelSize: Style.fontPx(1.2)
+            font.bold: true
+            font.family: Style.fontFamily
+            horizontalAlignment: Text.AlignHCenter
+            wrapMode: Text.NoWrap
+          }
+        }
       }
     }
 
